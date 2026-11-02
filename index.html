@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timeline Graffiti</title>
+<meta name="description" content="Spray a message across Safari's Web Inspector timeline in pixel-art timer chips.">
+<link rel="canonical" href="https://jonezzyboy.github.io/timeline-graffiti/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23262a33'/%3E%3Cg fill='%23b58cf0'%3E%3Crect x='12' y='14' width='8' height='36' rx='3'/%3E%3Crect x='44' y='14' width='8' height='36' rx='3'/%3E%3Crect x='24' y='28' width='16' height='8' rx='3'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;600&family=Fragment+Mono&display=swap">
+<style>
+:root {
+  --bg: #262a33;
+  --lane: #2e333d;
+  --lane-alt: #2a2e37;
+  --ink: #e8e6f0;
+  --muted: #9aa0ad;
+  --chip: #b58cf0;
+  --accent: #ff4d4d;
+  --display: "Bricolage Grotesque", "Arial Black", sans-serif;
+  --body: "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
+  --mono: "Fragment Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.55 var(--body);
+  min-height: 100dvh;
+  padding: 48px 16px;
+  display: flex;
+  justify-content: center;
+}
+main { width: min(680px, 100%); }
+a { color: var(--chip); }
+h1 { font: 800 clamp(38px, 9vw, 64px)/1 var(--display); letter-spacing: -0.03em; }
+h1 span { color: var(--chip); }
+.lede { margin-top: 12px; color: var(--muted); font-size: 17px; }
+h2 { font: 800 22px var(--display); margin: 36px 0 12px; }
+h3 { font: 800 17px var(--display); margin: 22px 0 6px; color: var(--chip); }
+
+form { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+input, button { font: 16px var(--mono); border-radius: 8px; border: 2px solid var(--chip); padding: 10px 14px; }
+input { flex: 1; min-width: 0; background: var(--lane); color: var(--ink); text-transform: uppercase; }
+button { background: var(--chip); color: var(--bg); font-weight: 600; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.preview {
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow-x: auto;
+  background: var(--lane);
+}
+.lane { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; }
+.lane:nth-child(even) { background: var(--lane-alt); }
+.lane i {
+  font: 12px var(--mono);
+  font-style: normal;
+  color: var(--muted);
+  width: 104px;
+  white-space: nowrap;
+  flex: none;
+}
+.lane b { flex: none; width: 8px; height: 16px; border-radius: 3px; }
+.lane b.on { background: var(--chip); }
+.status { margin-top: 10px; font: 13px var(--mono); color: var(--muted); }
+
+ol { padding-left: 1.4em; }
+li { margin: 8px 0; }
+li::marker { font-family: var(--mono); color: var(--chip); }
+kbd, code { font: 14px var(--mono); background: var(--lane); border-radius: 4px; padding: 1px 6px; }
+.foot { margin-top: 44px; font: 13px var(--mono); color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Timeline <span>Graffiti</span></h1>
+  <p class="lede">Type a message, open your browser's performance profiler, reload, and the message shows up in the timeline, drawn with timer chips.</p>
+
+  <form>
+    <input id="text" name="text" maxlength="12" pattern="[A-Za-z ]*" placeholder="HELLO" autocomplete="off" aria-label="Message (letters and spaces)">
+    <button>Paint it</button>
+  </form>
+
+  <div class="preview" id="preview" aria-hidden="true"></div>
+  <p class="status" id="status">No message yet. Letters A–Z and spaces only.</p>
+
+  <h2>How to see it</h2>
+  <p>Type a message and press <b>Paint it</b>. The page reloads with <code>?text=…</code> in the address bar. Every browser below starts drawing 1&nbsp;second after load and finishes about <b class="wait">a few</b> seconds in, so make sure your recording runs that long.</p>
+
+  <h3>Safari</h3>
+  <ol>
+    <li>If there's no <b>Develop</b> menu, turn on <b>Settings → Advanced → Show features for web developers</b>.</li>
+    <li>Open Web Inspector with <kbd>⌥⌘I</kbd> and go to the <b>Timelines</b> tab. Untick <b>Stop recording once page loads</b>.</li>
+    <li>Press <kbd>⌘R</kbd>. Recording starts with the reload. Wait, then click the red ● to stop.</li>
+    <li>In the <b>Overview</b> panel, keep <b>Group By Resource</b> ticked and click the small ▶ triangle on the first row (this page) to expand it.</li>
+    <li>The five <code>row.js?row=0…4</code> rows spell out your message. Zoom the ruler if the chips run together.</li>
+  </ol>
+
+  <h3>Chrome / Edge</h3>
+  <ol>
+    <li>Open DevTools with <kbd>⌥⌘I</kbd> and go to the <b>Performance</b> panel.</li>
+    <li>Click <b>Record and reload</b> (the ⟳ button). Wait, then click <b>Stop</b>.</li>
+    <li>Find the <b>Timeline Graffiti</b> track group and expand it. Its rows <code>row 0…4</code> spell out your message.</li>
+  </ol>
+
+  <h3>Firefox</h3>
+  <ol>
+    <li>Open DevTools with <kbd>⌥⌘I</kbd> and go to the <b>Performance</b> panel, then click <b>Start recording</b>.</li>
+    <li>Reload the page with <kbd>⌘R</kbd>. Wait, then click <b>Capture recording</b>. The Firefox Profiler opens.</li>
+    <li>Open the <b>Marker Chart</b> tab and search for <code>graffiti</code>. The rows <code>graffiti 0…4</code> spell out your message.</li>
+  </ol>
+
+  <p class="foot">Each pixel row is loaded as its own script. Every lit pixel is a <code>setTimeout</code>, which Safari files under that script, plus a <code>performance.measure</code>, which Chrome and Firefox draw on a row of its own.
+    · <a href="https://jonezzyboy.github.io/">jonezzyboy*</a></p>
+</main>
+
+<script>
+  // 5x5 pixel font, rows top to bottom
+  const FONT = {
+    A: '01110 10001 11111 10001 10001', B: '11110 10001 11110 10001 11110',
+    C: '01111 10000 10000 10000 01111', D: '11110 10001 10001 10001 11110',
+    E: '11111 10000 11110 10000 11111', F: '11111 10000 11110 10000 10000',
+    G: '01111 10000 10011 10001 01111', H: '10001 10001 11111 10001 10001',
+    I: '11111 00100 00100 00100 11111', J: '00111 00010 00010 10010 01100',
+    K: '10001 10010 11100 10010 10001', L: '10000 10000 10000 10000 11111',
+    M: '10001 11011 10101 10001 10001', N: '10001 11001 10101 10011 10001',
+    O: '01110 10001 10001 10001 01110', P: '11110 10001 11110 10000 10000',
+    Q: '01110 10001 10101 10010 01101', R: '11110 10001 11110 10010 10001',
+    S: '01111 10000 01110 00001 11110', T: '11111 00100 00100 00100 00100',
+    U: '10001 10001 10001 10001 01110', V: '10001 10001 10001 01010 00100',
+    W: '10001 10001 10101 11011 10001', X: '10001 01010 00100 01010 10001',
+    Y: '10001 01010 00100 00100 00100', Z: '11111 00010 00100 01000 11111',
+    ' ': '00000 00000 00000 00000 00000',
+  };
+  const DELAY_MS = 1000;
+
+  const text = (new URLSearchParams(location.search).get('text') || '').toUpperCase().slice(0, 12);
+  const glyphs = [...text].map(c => (FONT[c] || FONT[' ']).split(' '));
+  window.PIXEL_ROWS = [0, 1, 2, 3, 4].map(row => glyphs.map(g => g[row] + '0').join(''));
+  window.PIXEL_T0 = performance.now() + DELAY_MS;
+  window.PIXEL_MS = 200;
+
+  if (text) {
+    // Safari groups timer records under the script that set them, so each pixel row
+    // needs its own resource URL; async=false keeps the rows in top-to-bottom order.
+    for (let row = 0; row < 5; row++) {
+      const s = document.createElement('script');
+      s.src = `row.js?row=${row}`;
+      s.async = false;
+      document.head.append(s);
+    }
+
+    document.getElementById('text').value = text;
+    const seconds = Math.ceil((DELAY_MS + PIXEL_ROWS[0].length * PIXEL_MS) / 1000) + 1;
+    document.querySelectorAll('.wait').forEach(el => { el.textContent = seconds; });
+    document.getElementById('status').textContent = `Painting “${text}”. Reload with Timelines recording and stop after about ${seconds}s.`;
+    document.getElementById('preview').innerHTML = PIXEL_ROWS.map((bits, row) =>
+      `<div class="lane"><i>row.js?row=${row}</i>${[...bits].map(b => `<b class="${b === '1' ? 'on' : ''}"></b>`).join('')}</div>`
+    ).join('');
+  }
+</script>
+</body>
+</html>
